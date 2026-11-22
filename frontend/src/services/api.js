@@ -1,11 +1,54 @@
 import axios from 'axios'
 
+// Resolve production vs local development API base URL
+const resolveBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_URL
+  if (envUrl && envUrl.trim()) {
+    const clean = envUrl.trim().replace(/\/+$/, '')
+    return clean.endsWith('/api') ? clean : `${clean}/api`
+  }
+
+  // Fallback to deployed Render backend in production builds
+  if (import.meta.env.PROD) {
+    return 'https://frontdesk-backend-ruga.onrender.com/api'
+  }
+
+  // Fallback to local Vite dev proxy in development
+  return '/api'
+}
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: resolveBaseURL(),
   headers: {
     'Content-Type': 'application/json'
   }
 })
+
+// Helper to reliably extract human-readable error string from any error or response object
+export function getErrorMessage(err, fallback = 'An unexpected error occurred') {
+  if (!err) return fallback
+  if (typeof err === 'string') return err
+
+  // Check err.response.data.error
+  const responseData = err.response?.data
+  if (responseData) {
+    if (typeof responseData === 'string') return responseData
+    if (typeof responseData.error === 'string') return responseData.error
+    if (responseData.error && typeof responseData.error === 'object') {
+      if (typeof responseData.error.message === 'string') return responseData.error.message
+      if (typeof responseData.error.code === 'string') return `${responseData.error.code}: ${responseData.error.message || fallback}`
+    }
+    if (typeof responseData.message === 'string') return responseData.message
+    if (responseData.code && responseData.message) return `${responseData.message}`
+  }
+
+  // Check standard Error message
+  if (typeof err.message === 'string' && err.message) {
+    return err.message
+  }
+
+  return fallback
+}
 
 // Attach JWT token to every request
 api.interceptors.request.use((config) => {

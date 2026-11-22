@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getTicket, claimTicket, updateTicket, addMessage, reopenTicket, getAgents } from '../services/api'
+import { getTicket, claimTicket, updateTicket, addMessage, reopenTicket, getAgents, getErrorMessage } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/Toast'
 
@@ -50,7 +50,7 @@ export default function TicketDetail() {
       setMessages(data.messages || [])
       setAuditLogs(data.audit_logs || [])
     } catch (err) {
-      toast.error('Failed to load ticket')
+      toast.error(getErrorMessage(err, 'Failed to load ticket'))
       navigate('/tickets')
     } finally {
       setLoading(false)
@@ -70,7 +70,7 @@ export default function TicketDetail() {
       toast.success('Ticket claimed!')
       loadTicket()
     } catch (err) {
-      const msg = err.response?.data?.error || 'Failed to claim ticket'
+      const msg = getErrorMessage(err, 'Failed to claim ticket')
       toast.error(msg)
     }
   }
@@ -81,7 +81,7 @@ export default function TicketDetail() {
       toast.success(`Status changed to ${newStatus.replace(/_/g, ' ')}`)
       loadTicket()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to update status')
+      toast.error(getErrorMessage(err, 'Failed to update status'))
     }
   }
 
@@ -91,7 +91,7 @@ export default function TicketDetail() {
       toast.success(`Priority changed to ${newPriority}`)
       loadTicket()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to update priority')
+      toast.error(getErrorMessage(err, 'Failed to update priority'))
     }
   }
 
@@ -101,7 +101,7 @@ export default function TicketDetail() {
       toast.success('Agent updated')
       loadTicket()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to assign agent')
+      toast.error(getErrorMessage(err, 'Failed to assign agent'))
     }
   }
 
@@ -111,7 +111,7 @@ export default function TicketDetail() {
       toast.success('Ticket reopened')
       loadTicket()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Cannot reopen ticket')
+      toast.error(getErrorMessage(err, 'Cannot reopen ticket'))
     }
   }
 
@@ -125,7 +125,7 @@ export default function TicketDetail() {
       setReplyContent('')
       loadTicket()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to send message')
+      toast.error(getErrorMessage(err, 'Failed to send message'))
     } finally {
       setSending(false)
     }

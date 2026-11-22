@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getHolidays, createHoliday, deleteHoliday } from '../services/api'
+import { getHolidays, createHoliday, deleteHoliday, getErrorMessage } from '../services/api'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 
@@ -18,7 +18,7 @@ export default function Holidays() {
       const data = await getHolidays()
       setHolidays(data.holidays || [])
     } catch (err) {
-      toast.error('Failed to load holidays')
+      toast.error(getErrorMessage(err, 'Failed to load holidays'))
     } finally {
       setLoading(false)
     }
@@ -38,7 +38,7 @@ export default function Holidays() {
       setForm({ date: '', name: '' })
       loadHolidays()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to add holiday')
+      toast.error(getErrorMessage(err, 'Failed to add holiday'))
     } finally {
       setSubmitting(false)
     }
@@ -51,7 +51,7 @@ export default function Holidays() {
       toast.success('Holiday removed')
       loadHolidays()
     } catch (err) {
-      toast.error('Failed to remove holiday')
+      toast.error(getErrorMessage(err, 'Failed to remove holiday'))
     }
   }
 

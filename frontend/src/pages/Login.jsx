@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/Toast'
+import { getErrorMessage } from '../services/api'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -31,7 +32,7 @@ export default function Login() {
       toast.success('Welcome to Frontdesk!')
       navigate('/')
     } catch (err) {
-      const msg = err.response?.data?.error || 'Invalid email or password'
+      const msg = getErrorMessage(err, 'Invalid email or password')
       setError(msg)
     } finally {
       setLoading(false)

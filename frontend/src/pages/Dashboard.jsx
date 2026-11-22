@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { getStats } from '../services/api'
+import { getStats, getErrorMessage } from '../services/api'
 
 export default function Dashboard() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     loadStats()
@@ -15,10 +16,12 @@ export default function Dashboard() {
 
   const loadStats = async () => {
     try {
+      setError(null)
       const data = await getStats()
       setStats(data)
     } catch (err) {
       console.error('Failed to load stats:', err)
+      setError(getErrorMessage(err, 'Failed to load statistics from server'))
     } finally {
       setLoading(false)
     }
@@ -50,6 +53,33 @@ export default function Dashboard() {
           <p className="page-subtitle">Welcome back, {user?.name}</p>
         </div>
       </div>
+
+      {error && (
+        <div style={{
+          backgroundColor: '#fef2f2',
+          border: '1px solid #fecaca',
+          borderRadius: '8px',
+          padding: '12px 16px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          color: '#991b1b',
+          fontSize: '0.875rem'
+        }}>
+          <div>
+            <strong>Notice:</strong> {error}
+          </div>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={loadStats}
+            style={{ marginLeft: '12px' }}
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       <div className="stats-grid">
         {statCards.map((card) => (

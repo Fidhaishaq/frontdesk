@@ -8,8 +8,17 @@ export function ToastProvider({ children }) {
   const [toasts, setToasts] = useState([])
 
   const addToast = useCallback((message, type = 'info') => {
+    let text = ''
+    if (typeof message === 'string') {
+      text = message
+    } else if (message && typeof message === 'object') {
+      text = message.message || message.error || (message.code ? `${message.code}: ${message.message || ''}` : JSON.stringify(message))
+    } else {
+      text = String(message ?? '')
+    }
+
     const id = ++toastId
-    setToasts(prev => [...prev, { id, message, type }])
+    setToasts(prev => [...prev, { id, message: text, type }])
     setTimeout(() => {
       setToasts(prev => prev.filter(t => t.id !== id))
     }, 3500)

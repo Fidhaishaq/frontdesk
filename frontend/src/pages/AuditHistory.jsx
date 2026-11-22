@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getAuditLogs } from '../services/api'
+import { getAuditLogs, getErrorMessage } from '../services/api'
 import { useToast } from '../components/Toast'
 
 function formatDate(dateStr) {
@@ -26,7 +26,7 @@ export default function AuditHistory() {
       const data = await getAuditLogs(filters)
       setLogs(data.audit_logs || [])
     } catch (err) {
-      toast.error('Failed to load audit logs')
+      toast.error(getErrorMessage(err, 'Failed to load audit logs'))
     } finally {
       setLoading(false)
     }

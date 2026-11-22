@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { getTickets, createTicket, getAgents } from '../services/api'
+import { getTickets, createTicket, getAgents, getErrorMessage } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
@@ -86,7 +86,7 @@ export default function Tickets() {
       setForm({ customer_name: '', customer_email: '', subject: '', description: '', priority: 'medium' })
       loadTickets()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to create ticket')
+      toast.error(getErrorMessage(err, 'Failed to create ticket'))
     } finally {
       setCreating(false)
     }

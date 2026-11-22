@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from './contexts/AuthContext'
 import Sidebar from './components/Sidebar'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -9,6 +9,19 @@ import TicketDetail from './pages/TicketDetail'
 import Agents from './pages/Agents'
 import AuditHistory from './pages/AuditHistory'
 import Holidays from './pages/Holidays'
+
+function AppLayout() {
+  return (
+    <div className="app-layout">
+      <Sidebar />
+      <main className="app-main">
+        <div className="app-content">
+          <Outlet />
+        </div>
+      </main>
+    </div>
+  )
+}
 
 export default function App() {
   const { isAuthenticated, loading } = useAuth()
@@ -21,44 +34,34 @@ export default function App() {
     )
   }
 
-  if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    )
-  }
-
   return (
-    <div className="app-layout">
-      <Sidebar />
-      <main className="app-main">
-        <div className="app-content">
-          <Routes>
-            <Route path="/" element={
-              <ProtectedRoute><Dashboard /></ProtectedRoute>
-            } />
-            <Route path="/tickets" element={
-              <ProtectedRoute><Tickets /></ProtectedRoute>
-            } />
-            <Route path="/tickets/:id" element={
-              <ProtectedRoute><TicketDetail /></ProtectedRoute>
-            } />
-            <Route path="/agents" element={
-              <ProtectedRoute adminOnly><Agents /></ProtectedRoute>
-            } />
-            <Route path="/audit" element={
-              <ProtectedRoute adminOnly><AuditHistory /></ProtectedRoute>
-            } />
-            <Route path="/holidays" element={
-              <ProtectedRoute adminOnly><Holidays /></ProtectedRoute>
-            } />
-            <Route path="/login" element={<Navigate to="/" replace />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </main>
-    </div>
+    <Routes>
+      {/* Public Login Route */}
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+      />
+
+      {/* Authenticated Layout and Child Routes */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/tickets" element={<Tickets />} />
+        <Route path="/tickets/:id" element={<TicketDetail />} />
+        <Route path="/agents" element={<ProtectedRoute adminOnly><Agents /></ProtectedRoute>} />
+        <Route path="/audit" element={<ProtectedRoute adminOnly><AuditHistory /></ProtectedRoute>} />
+        <Route path="/holidays" element={<ProtectedRoute adminOnly><Holidays /></ProtectedRoute>} />
+      </Route>
+
+      {/* Fallback Catch-All Route */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
+
+

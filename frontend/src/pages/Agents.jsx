@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getAgents, createAgent, updateAgent } from '../services/api'
+import { getAgents, createAgent, updateAgent, getErrorMessage } from '../services/api'
 import { useToast } from '../components/Toast'
 import Modal from '../components/Modal'
 
@@ -19,7 +19,7 @@ export default function Agents() {
       const data = await getAgents()
       setAgents(data.agents || [])
     } catch (err) {
-      toast.error('Failed to load agents')
+      toast.error(getErrorMessage(err, 'Failed to load agents'))
     } finally {
       setLoading(false)
     }
@@ -39,7 +39,7 @@ export default function Agents() {
       setForm({ name: '', email: '', password: '' })
       loadAgents()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to create agent')
+      toast.error(getErrorMessage(err, 'Failed to create agent'))
     } finally {
       setSubmitting(false)
     }
@@ -58,7 +58,7 @@ export default function Agents() {
       setEditAgent(null)
       loadAgents()
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to update agent')
+      toast.error(getErrorMessage(err, 'Failed to update agent'))
     } finally {
       setSubmitting(false)
     }
@@ -70,7 +70,7 @@ export default function Agents() {
       toast.success(agent.is_active ? 'Agent deactivated' : 'Agent activated')
       loadAgents()
     } catch (err) {
-      toast.error('Failed to update agent status')
+      toast.error(getErrorMessage(err, 'Failed to update agent status'))
     }
   }
 
